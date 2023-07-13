@@ -3,6 +3,7 @@ const xml2js = require('xml2js');
 
 module.exports = (req, res) => {
   axios.get('https://technikole.com/assets/stream/anchor_meta-mind-shift.xml')
+
     .then(response => {
       const parser = new xml2js.Parser({ attrkey: "ATTR" });
 
@@ -21,7 +22,14 @@ module.exports = (req, res) => {
                 var title = item.title[0];
                 var description = item.description[0];
                 var pubDate = item.pubDate[0];
-                var enclosure = item.enclosure[0].$.url;
+                var enclosure;
+                if (item.enclosure && item.enclosure[0] && item.enclosure[0].$) {
+                    enclosure = item.enclosure[0].$.url;
+                } else {
+                    console.error('Enclosure is missing for item:', item);
+                    // skip this item, or handle this error case as needed
+                    return;
+                }
                 var seasonNumber = parseInt(item["itunes:season"][0]);
                 var episodeNumber = parseInt(item["itunes:episode"][0]);
 
@@ -79,5 +87,4 @@ module.exports = (req, res) => {
         console.error(error);
         res.status(500).send("Error fetching RSS feed: " + error.message);
       });
-      
 };
