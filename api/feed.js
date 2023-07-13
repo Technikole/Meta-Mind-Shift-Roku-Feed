@@ -70,8 +70,7 @@ module.exports = (req, res) => {
           
           // When you're done, you can send the result back as JSON like this:
           res.status(200).json(rokuJson);
-        }
-        else {
+        } else {
           res.status(500).send("Error parsing XML");
         }
       });
