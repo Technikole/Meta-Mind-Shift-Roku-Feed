@@ -76,6 +76,8 @@ module.exports = (req, res) => {
       });
     })
     .catch(error => {
-      res.status(500).send("Error fetching RSS feed");
-    });
+        console.error(error);
+        res.status(500).send("Error fetching RSS feed: " + error.message);
+      });
+      
 };
