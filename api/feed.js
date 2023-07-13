@@ -27,6 +27,7 @@ module.exports = (req, res) => {
                     enclosure = item.enclosure[0].$.url;
                 } else {
                     console.error('Enclosure is missing for item:', item);
+                console.log('Item:', item)
                     // skip this item, or handle this error case as needed
                     return;
                 }
