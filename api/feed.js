@@ -1,22 +1,21 @@
 const axios = require('axios');
-const parseString = require('xml2js').parseString;
+const xml2js = require('xml2js');
 
-axios.get('https://technikole.com/assets/stream/anchor_meta-mind-shift.xml')
+module.exports = (req, res) => {
+  axios.get('https://technikole.com/assets/stream/anchor_meta-mind-shift.xml')
     .then(response => {
-        parseString(response.data, (err, result) => {
-            if (err) {
-                console.error("Failed to parse XML", err);
-                return;
-            }
+      const parser = new xml2js.Parser({ attrkey: "ATTR" });
 
-            const rokuJson = {
-                providerName: "MaxDistro Live",
-                lastUpdated: new Date().toISOString(),
-                language: "en",
-                series: []
-            };
+      parser.parseString(response.data, function(error, result) {
+        if(error === null) {
+          let rokuJson = {
+            providerName: "MaxDistro Live",
+            lastUpdated: new Date().toISOString(),
+            language: "en",
+            series: []
+          };
 
-            result.rss.channel[0].item.forEach((item) => {
+          result.rss.channel[0].item.forEach((item) => {
                 // For each item, convert the XML to the desired JSON format
 
                 var title = item.title[0];
@@ -67,10 +66,17 @@ axios.get('https://technikole.com/assets/stream/anchor_meta-mind-shift.xml')
                         genres: ["technology","sci-fi","gaming","science-fiction","educational"]
                     });
                 }
-            });
-
-            // Log the JSON output
-            console.log(JSON.stringify(rokuJson, null, 2));
-        });
+          });
+          
+          // When you're done, you can send the result back as JSON like this:
+          res.status(200).json(rokuJson);
+        }
+        else {
+          res.status(500).send("Error parsing XML");
+        }
+      });
     })
-    .catch(console.error);
+    .catch(error => {
+      res.status(500).send("Error fetching RSS feed");
+    });
+};
